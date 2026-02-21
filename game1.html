@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>🌍 Salva el Planeta - Juego</title>
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+background: linear-gradient(180deg,#001d3d,#003566,#0a9396);
+color:white;
+text-align:center;
+margin:0;
+overflow-x:hidden;
+}
+
+h1{
+animation: aparecer 2s ease;
+}
+
+@keyframes aparecer{
+from{opacity:0; transform:translateY(-50px);}
+to{opacity:1; transform:translateY(0);}
+}
+
+#game{
+background: rgba(255,255,255,0.1);
+padding:20px;
+border-radius:15px;
+width:400px;
+margin:auto;
+box-shadow:0 0 20px rgba(0,0,0,0.5);
+animation: aparecer 2s ease;
+}
+
+button{
+
+background:#00b4d8;
+border:none;
+padding:10px;
+margin:10px;
+color:white;
+font-size:16px;
+border-radius:10px;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+
+background:#90e0ef;
+transform: scale(1.1);
+
+}
+
+#planet{
+
+font-size:100px;
+animation: rotar 10s linear infinite;
+
+}
+
+@keyframes rotar{
+
+from{transform: rotate(0deg);}
+to{transform: rotate(360deg);}
+
+}
+
+#progressBar{
+
+width:100%;
+background:#333;
+border-radius:20px;
+margin-top:10px;
+
+}
+
+#progress{
+
+width:0%;
+height:20px;
+background:lime;
+border-radius:20px;
+transition:1s;
+
+}
+
+#message{
+
+margin-top:10px;
+font-size:18px;
+min-height:30px;
+animation: aparecer 1s;
+
+}
+
+#score{
+
+font-size:20px;
+margin-top:10px;
+
+}
+
+.bad{
+
+animation: shake 0.5s;
+
+}
+
+@keyframes shake{
+
+0%{transform:translateX(0);}
+25%{transform:translateX(-10px);}
+50%{transform:translateX(10px);}
+75%{transform:translateX(-10px);}
+100%{transform:translateX(0);}
+
+}
+
+.good{
+
+animation: pulse 0.5s;
+
+}
+
+@keyframes pulse{
+
+0%{transform:scale(1);}
+50%{transform:scale(1.2);}
+100%{transform:scale(1);}
+
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>🌍 Salva el Planeta</h1>
+
+<div id="planet">🌎</div>
+
+<div id="game">
+
+<p id="question">Haz clic en empezar</p>
+
+<button onclick="startGame()">Empezar</button>
+
+<div id="choices"></div>
+
+<div id="progressBar">
+<div id="progress"></div>
+</div>
+
+<div id="score">Puntos: 0</div>
+
+<div id="message"></div>
+
+</div>
+
+
+<script>
+
+let questions = [
+
+{
+q:"¿Qué haces con una botella de plástico?",
+a:[
+{text:"Reciclarla ♻️",points:10,good:true},
+{text:"Tirarla al océano 🌊",points:-10,good:false}
+]
+},
+
+{
+q:"¿Cómo vas a la escuela?",
+a:[
+{text:"Bicicleta 🚲",points:10,good:true},
+{text:"Auto contaminante 🚗",points:-10,good:false}
+]
+},
+
+{
+q:"¿Dejas las luces encendidas?",
+a:[
+{text:"No 💡",points:10,good:true},
+{text:"Sí 🔥",points:-10,good:false}
+]
+},
+
+{
+q:"¿Plantas árboles?",
+a:[
+{text:"Sí 🌳",points:10,good:true},
+{text:"No ❌",points:-10,good:false}
+]
+},
+
+{
+q:"¿Usas energía limpia?",
+a:[
+{text:"Sí ☀️",points:10,good:true},
+{text:"No 🏭",points:-10,good:false}
+]
+}
+
+];
+
+let current = 0;
+let score = 0;
+
+function startGame(){
+
+document.querySelector("button").style.display="none";
+showQuestion();
+
+}
+
+function showQuestion(){
+
+let q = questions[current];
+
+document.getElementById("question").innerHTML=q.q;
+
+let choicesHTML="";
+
+q.a.forEach(choice=>{
+
+choicesHTML+=`<button onclick="answer(${choice.points},${choice.good})">${choice.text}</button>`;
+
+});
+
+document.getElementById("choices").innerHTML=choicesHTML;
+
+}
+
+function answer(points,good){
+
+score+=points;
+
+document.getElementById("score").innerHTML="Puntos: "+score;
+
+let planet=document.getElementById("planet");
+
+if(good){
+
+document.getElementById("message").innerHTML="¡Bien! Salvaste el planeta 🌱";
+
+planet.classList.add("good");
+
+}else{
+
+document.getElementById("message").innerHTML="¡Mal! Dañaste el planeta 💀";
+
+planet.classList.add("bad");
+
+}
+
+setTimeout(()=>{
+
+planet.classList.remove("good");
+planet.classList.remove("bad");
+
+},500);
+
+current++;
+
+let progress=(current/questions.length)*100;
+
+document.getElementById("progress").style.width=progress+"%";
+
+if(current<questions.length){
+
+setTimeout(showQuestion,1000);
+
+}else{
+
+endGame();
+
+}
+
+}
+
+function endGame(){
+
+let msg="";
+
+if(score>=40){
+
+msg="🌍 ¡Increíble! Salvaste el planeta";
+
+}else if(score>=10){
+
+msg="🙂 Bien, pero puedes mejorar";
+
+}else{
+
+msg="💀 El planeta está en peligro";
+
+}
+
+document.getElementById("question").innerHTML="Juego terminado";
+
+document.getElementById("choices").innerHTML="";
+
+document.getElementById("message").innerHTML=msg;
+
+}
+
+</script>
+
+</body>
+</html>
