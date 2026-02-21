@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>🌳 ¡Salva los Árboles!</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: linear-gradient(#87CEEB, #228B22);
+    color: white;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+button {
+    padding: 15px 25px;
+    margin: 10px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#mensaje {
+    font-size: 24px;
+    margin-top: 20px;
+    min-height: 30px;
+}
+
+#puntos, #nivel, #tiempo, #co2 {
+    font-size: 20px;
+}
+
+#escena {
+    font-size: 90px;
+    margin: 20px;
+}
+
+#inicio {
+    background-color: #3498db;
+    font-size: 22px;
+}
+
+.plantar {
+    background-color: #2ecc71;
+}
+
+.proteger {
+    background-color: #27ae60;
+}
+
+.contaminar {
+    background-color: #e74c3c;
+}
+
+</style>
+</head>
+<body>
+
+<h1>🌳 ¡Salva los Árboles y el Planeta!</h1>
+<p>Planta árboles y detén el CO₂ antes de que el planeta se caliente.</p>
+
+<p id="nivel">Nivel: 1</p>
+<p id="puntos">Árboles: 0</p>
+<p id="tiempo">Tiempo: 30</p>
+<p id="co2">CO₂: 0%</p>
+
+<button id="inicio" onclick="iniciarJuego()">Comenzar</button>
+
+<div id="game" style="display:none;">
+
+<div id="escena">🌱</div>
+
+<button class="plantar" onclick="accion('plantar')">🌱 Plantar árbol</button>
+<button class="proteger" onclick="accion('proteger')">🛡️ Proteger bosque</button>
+<button class="contaminar" onclick="accion('ignorar')">🏭 Ignorar</button>
+
+</div>
+
+<div id="mensaje"></div>
+
+<!-- sonidos -->
+<audio id="correcto" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
+<audio id="incorrecto" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+<audio id="nivelup" src="https://actions.google.com/sounds/v1/cartoon/clang.ogg"></audio>
+<audio id="gameover" src="https://actions.google.com/sounds/v1/cartoon/siren_whistle.ogg"></audio>
+
+<script>
+
+let puntos = 0;
+let nivel = 1;
+let tiempo = 30;
+let co2 = 0;
+let jugando = false;
+let timer;
+
+let eventos = [
+    {emoji:"🌱", correcto:"plantar", texto:"¡Un árbol nuevo necesita ayuda!"},
+    {emoji:"🔥", correcto:"proteger", texto:"¡Incendio forestal!"},
+    {emoji:"🏭", correcto:"proteger", texto:"¡Fábrica contaminando!"},
+    {emoji:"🌳", correcto:"proteger", texto:"¡Protege el bosque!"},
+    {emoji:"🚗", correcto:"proteger", texto:"¡Demasiado CO₂!"}
+];
+
+let actual;
+
+function iniciarJuego(){
+
+puntos = 0;
+nivel = 1;
+tiempo = 30;
+co2 = 0;
+jugando = true;
+
+document.getElementById("inicio").style.display="none";
+document.getElementById("game").style.display="block";
+
+nuevoEvento();
+actualizar();
+iniciarTimer();
+
+}
+
+function iniciarTimer(){
+
+clearInterval(timer);
+
+timer = setInterval(()=>{
+
+ tiempo--;
+ co2 += 2;
+
+ if(co2 >= 100){
+ finJuego();
+ }
+
+ if(tiempo <= 0){
+ subirNivel();
+ }
+
+ actualizar();
+
+},1000);
+
+}
+
+function nuevoEvento(){
+
+actual = eventos[Math.floor(Math.random()*eventos.length)];
+
+document.getElementById("escena").textContent = actual.emoji;
+
+document.getElementById("mensaje").textContent = actual.texto;
+
+}
+
+function accion(tipo){
+
+if(!jugando)return;
+
+if(tipo === actual.correcto){
+
+puntos++;
+co2 -= 5;
+
+if(co2 < 0) co2 = 0;
+
+document.getElementById("mensaje").textContent = "¡Bien! Ayudaste al planeta 🌎";
+
+document.getElementById("correcto").play();
+
+}
+
+else{
+
+co2 += 10;
+
+document.getElementById("mensaje").textContent = "¡Oh no! Más calentamiento global 🔥";
+
+document.getElementById("incorrecto").play();
+
+}
+
+nuevoEvento();
+actualizar();
+
+}
+
+function subirNivel(){
+
+nivel++;
+tiempo = 30 - (nivel*3);
+
+if(tiempo < 10) tiempo = 10;
+
+co2 += 5;
+
+document.getElementById("nivelup").play();
+
+document.getElementById("mensaje").textContent = "Nivel " + nivel + " — ¡El planeta se está calentando!";
+
+}
+
+function finJuego(){
+
+jugando = false;
+clearInterval(timer);
+
+ document.getElementById("gameover").play();
+
+document.getElementById("mensaje").textContent =
+"Juego terminado. Árboles salvados: " + puntos;
+
+ document.getElementById("inicio").style.display="inline-block";
+ document.getElementById("inicio").textContent="Jugar otra vez";
+
+}
+
+function actualizar(){
+
+document.getElementById("puntos").textContent = "Árboles: " + puntos;
+document.getElementById("nivel").textContent = "Nivel: " + nivel;
+document.getElementById("tiempo").textContent = "Tiempo: " + tiempo;
+document.getElementById("co2").textContent = "CO₂: " + co2 + "%";
+
+}
+
+</script>
+
+</body>
+</html>
